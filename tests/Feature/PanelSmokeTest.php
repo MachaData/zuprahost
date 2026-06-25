@@ -74,6 +74,7 @@ class PanelSmokeTest extends TestCase
             '/client/invoices',
             '/client/tickets',
             '/client/licenses',
+            '/client/billing-profile',
         ] as $url) {
             $this->get($url)->assertOk();
         }

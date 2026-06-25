@@ -100,6 +100,30 @@ class BusinessLogicTest extends TestCase
         $this->assertEquals(120.00, (float) $renewal->invoice->subtotal);
     }
 
+    public function test_client_default_document_type_follows_choice(): void
+    {
+        $noInvoice = Client::create([
+            'type' => 'natural', 'name' => 'Sin factura', 'document_type' => 'dni',
+            'document_number' => '12345678', 'email' => 'a@b.com', 'country' => 'Perú',
+            'wants_invoice' => false,
+        ]);
+        $this->assertEquals('nota_venta', $noInvoice->defaultDocumentType());
+
+        $boleta = Client::create([
+            'type' => 'natural', 'name' => 'Con boleta', 'document_type' => 'dni',
+            'document_number' => '87654321', 'email' => 'c@d.com', 'country' => 'Perú',
+            'wants_invoice' => true,
+        ]);
+        $this->assertEquals('boleta', $boleta->defaultDocumentType());
+
+        $factura = Client::create([
+            'type' => 'empresa', 'name' => 'Con factura', 'document_type' => 'ruc',
+            'document_number' => '20123456789', 'email' => 'e@f.com', 'country' => 'Perú',
+            'wants_invoice' => true,
+        ]);
+        $this->assertEquals('factura', $factura->defaultDocumentType());
+    }
+
     public function test_apisperu_payload_has_required_fields(): void
     {
         $client = $this->client();

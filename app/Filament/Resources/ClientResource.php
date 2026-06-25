@@ -71,6 +71,10 @@ class ClientResource extends Resource
                         ->helperText(fn (Forms\Get $get) => $get('document_type') === 'ruc'
                             ? 'Con RUC se puede emitir factura electrónica vía APISPERU.'
                             : null),
+                    Forms\Components\Toggle::make('wants_invoice')
+                        ->label('¿Desea facturación electrónica?')
+                        ->helperText('Si está activo, sus pagos generan comprobante electrónico (factura si tiene RUC, de lo contrario boleta).')
+                        ->columnSpanFull(),
                 ]),
             Forms\Components\Section::make('Contacto')
                 ->columns(2)

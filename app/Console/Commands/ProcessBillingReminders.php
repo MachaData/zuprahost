@@ -15,9 +15,10 @@ class ProcessBillingReminders extends Command
     protected $description = 'Marca vencimientos y envía recordatorios de servicios, dominios y facturas.';
 
     /**
-     * Días relativos al vencimiento en los que se notifica.
+     * Días antes del vencimiento en los que se notifica:
+     * 10 días antes, 3 días antes y el mismo día.
      */
-    protected array $offsets = [7, 3, 0, -3, -7];
+    protected array $offsets = [10, 3, 0];
 
     public function handle(): int
     {

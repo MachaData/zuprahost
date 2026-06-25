@@ -78,6 +78,7 @@ class ServiceManager
             'issued_at' => now(),
             'due_at' => now()->addDays(7),
             'status' => 'pendiente',
+            'document_type' => $service->client->defaultDocumentType(),
         ]);
 
         $invoice->items()->create([
