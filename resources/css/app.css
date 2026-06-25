@@ -5,7 +5,111 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/*
+|--------------------------------------------------------------------------
+| Yachay · Sistema de diseño
+|--------------------------------------------------------------------------
+| Inspirado en el sistema de Airbnb (mucho espacio en blanco, tarjetas
+| redondeadas, bordes sutiles y sombras suaves) pero con el azul de marca.
+| Limpio y sencillo.
+*/
+
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji';
+
+    /* Azul de marca */
+    --color-brand-50: #eff5ff;
+    --color-brand-100: #dbe8fe;
+    --color-brand-200: #bfd6fe;
+    --color-brand-300: #93b9fd;
+    --color-brand-400: #6094fa;
+    --color-brand-500: #3b73f6;
+    --color-brand-600: #2557e6;
+    --color-brand-700: #1d44c3;
+    --color-brand-800: #1d3a9e;
+    --color-brand-900: #1e347d;
+
+    /* Azul tinta (títulos y botón primario, navy oscuro) */
+    --color-ink: #16233f;
+    --color-ink-soft: #2b3a57;
+
+    /* Neutros (estilo Airbnb) */
+    --color-canvas: #f7f8fa;
+    --color-line: #e6e8ec;
+    --color-muted: #6b7280;
+
+    /* Radios y sombras */
+    --shadow-card: 0 1px 2px rgba(16, 35, 63, 0.04);
+    --shadow-card-hover: 0 12px 28px rgba(16, 35, 63, 0.10);
+}
+
+@layer base {
+    body {
+        @apply bg-canvas text-ink antialiased;
+    }
+}
+
+@layer components {
+    /* Eyebrow: etiqueta superior en azul, mayúsculas espaciadas */
+    .ys-eyebrow {
+        @apply text-xs font-semibold uppercase tracking-[0.14em] text-brand-600;
+    }
+
+    /* Títulos */
+    .ys-title {
+        @apply text-3xl font-extrabold tracking-tight text-ink sm:text-[2rem];
+    }
+
+    .ys-lead {
+        @apply text-base leading-relaxed text-muted;
+    }
+
+    /* Tarjeta base estilo Airbnb */
+    .ys-card {
+        @apply rounded-2xl border border-line bg-white p-7 transition duration-200;
+        box-shadow: var(--shadow-card);
+    }
+
+    .ys-card--interactive {
+        @apply cursor-pointer hover:-translate-y-0.5;
+    }
+
+    .ys-card--interactive:hover {
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--color-brand-200);
+    }
+
+    /* Icono en cuadro azul redondeado */
+    .ys-icon {
+        @apply flex size-12 items-center justify-center rounded-xl bg-brand-100 text-brand-700;
+    }
+
+    /* Pastillas de pasos */
+    .ys-pill {
+        @apply inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-ink-soft;
+    }
+
+    /* Enlace de acción azul */
+    .ys-link {
+        @apply inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 transition hover:text-brand-700;
+    }
+
+    /* Botones */
+    .ys-btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2;
+    }
+
+    .ys-btn--primary {
+        @apply bg-ink text-white hover:bg-ink-soft;
+    }
+
+    .ys-btn--ghost {
+        @apply text-ink-soft hover:bg-slate-100;
+    }
+
+    /* Botón circular (volver) */
+    .ys-btn-round {
+        @apply flex size-9 items-center justify-center rounded-full border border-line bg-white text-ink-soft transition hover:bg-slate-50;
+    }
 }
