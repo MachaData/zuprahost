@@ -1,0 +1,26 @@
+<svg viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CEVEX">
+  <defs>
+    <linearGradient id="cevexGrad" x1="20" y1="6" x2="100" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2BA8E0"/>
+      <stop offset="0.5" stop-color="#1E5BD6"/>
+      <stop offset="1" stop-color="#4B2E97"/>
+    </linearGradient>
+  </defs>
+  <g stroke="url(#cevexGrad)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- pin / teardrop -->
+    <path d="M60 132 C40 96 18 80 18 50 A42 42 0 1 1 102 50 C102 80 80 96 60 132 Z"/>
+    <!-- concentric target rings -->
+    <circle cx="60" cy="50" r="29"/>
+    <circle cx="60" cy="50" r="20"/>
+    <circle cx="60" cy="50" r="11"/>
+    <!-- arrow shaft into bullseye -->
+    <path d="M60 50 L96 18"/>
+    <!-- bullseye -->
+    <circle cx="60" cy="50" r="3" fill="url(#cevexGrad)" stroke="none"/>
+  </g>
+  <!-- fletching -->
+  <g fill="url(#cevexGrad)">
+    <path d="M96 18 L84 16 L92 28 Z"/>
+    <path d="M96 18 L98 30 L86 22 Z"/>
+  </g>
+</svg>
