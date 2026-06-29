@@ -26,7 +26,7 @@ class ClientPanelProvider extends PanelProvider
             ->id('client')
             ->path('client')
             ->login()
-            ->brandName('Yachay · Clientes')
+            ->brandName('zupraHost · Clientes')
             ->colors([
                 'primary' => Color::Indigo,
             ])

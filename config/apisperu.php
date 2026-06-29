@@ -20,8 +20,8 @@ return [
     // Datos de la empresa emisora.
     'company' => [
         'ruc' => env('APISPERU_COMPANY_RUC'),
-        'razon_social' => env('APISPERU_COMPANY_NAME', 'Yachay'),
-        'nombre_comercial' => env('APISPERU_COMPANY_TRADE_NAME', 'Yachay'),
+        'razon_social' => env('APISPERU_COMPANY_NAME', 'zupraHost'),
+        'nombre_comercial' => env('APISPERU_COMPANY_TRADE_NAME', 'zupraHost'),
         'address' => [
             'direccion' => env('APISPERU_COMPANY_ADDRESS', ''),
             'ubigueo' => env('APISPERU_COMPANY_UBIGEO', '150101'),

@@ -12,7 +12,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $heading ? $heading.' · ' : '' }}Yachay</title>
+    <title>{{ $heading ? $heading.' · ' : '' }}zupraHost</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -47,7 +47,10 @@
     {{-- Pie con paso y acción --}}
     <footer class="sticky bottom-0 border-t border-line bg-white">
         <div class="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
-            <span class="text-sm text-muted">{{ $step }}</span>
+            <span class="text-sm text-muted">
+                {{ $step }}
+                <span class="ml-2 hidden text-xs text-slate-400 sm:inline">· Desarrollado por MachaData</span>
+            </span>
             @if ($nextLabel)
                 <a href="{{ $nextUrl }}" class="ys-btn ys-btn--primary">
                     {{ $nextLabel }}

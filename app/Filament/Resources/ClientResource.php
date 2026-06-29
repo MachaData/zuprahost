@@ -98,7 +98,7 @@ class ClientResource extends Resource
                         ->required(),
                 ]),
             Forms\Components\Section::make('Acceso al portal')
-                ->description('Vincula un usuario para que el cliente pueda ingresar a clientes.yachay.lat')
+                ->description('Vincula un usuario para que el cliente pueda ingresar a clientes.zuprahost.com')
                 ->collapsed()
                 ->schema([
                     Forms\Components\Select::make('user_id')

@@ -1,19 +1,21 @@
-# Yachay Panel
+# zupraHost Panel
 
-Área de clientes y panel administrativo para servicios digitales: hosting, dominios,
-licencias, mantenimiento web, SEO y **facturación recurrente con comprobantes
-electrónicos SUNAT** (vía APISPERU).
+Área de clientes y panel administrativo para **zupraHost** — servicios digitales:
+hosting, dominios, licencias, mantenimiento web, SEO y **facturación recurrente con
+comprobantes electrónicos SUNAT** (vía APISPERU).
 
 Construido con **Laravel 12 + Filament 3**, inspirado en WHMCS / Blesta / WISECP pero
 con una interfaz más simple y moderna.
+
+> Producto: **zupraHost** · Desarrollado por **MachaData**.
 
 ## Arquitectura
 
 El ecosistema se divide en:
 
-- **Web comercial (WordPress)** — `yachay.lat` (fuera de este repositorio).
-- **Panel administrativo (Laravel/Filament)** — `admin.yachay.lat` → ruta `/admin`.
-- **Portal de clientes (Laravel/Filament)** — `clientes.yachay.lat` → ruta `/client`.
+- **Web comercial (WordPress)** — `zuprahost.com` (fuera de este repositorio).
+- **Panel administrativo (Laravel/Filament)** — `admin.zuprahost.com` → ruta `/admin`.
+- **Portal de clientes (Laravel/Filament)** — `clientes.zuprahost.com` → ruta `/client`.
 
 Ambos paneles comparten la misma base de datos y modelos.
 
@@ -22,7 +24,7 @@ Ambos paneles comparten la misma base de datos y modelos.
 - Laravel 12 · PHP 8.4
 - Filament 3 (dos paneles: admin y cliente)
 - Spatie Laravel Permission (roles y permisos)
-- MySQL en producción / SQLite en desarrollo
+- MySQL (8 / MariaDB) por defecto · SQLite opcional
 - Laravel Notifications, Queues y Scheduler
 - Integración SUNAT vía APISPERU
 
@@ -88,15 +90,31 @@ npm install && npm run build
 php artisan serve
 ```
 
-> Requisitos: PHP 8.2+ con extensiones `pdo_sqlite`/`pdo_mysql`, Composer y Node 18+.
-> Por defecto usa **SQLite** (sin configuración). Para MySQL, ajusta `DB_*` en `.env`.
+> Requisitos: PHP 8.2+ con extensión `pdo_mysql`, **MySQL 8** (o MariaDB 10.4+),
+> Composer y Node 18+.
+> Por defecto usa **MySQL**: ajusta `DB_*` en `.env` y `./setup.sh` crea la base de
+> datos automáticamente. Para usar **SQLite** sin servidor, pon `DB_CONNECTION=sqlite`.
+
+### Configuración de MySQL
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=zuprahost
+DB_USERNAME=root
+DB_PASSWORD=tu_password
+```
+
+`./setup.sh` ejecuta `CREATE DATABASE IF NOT EXISTS zuprahost` por ti; solo necesitas
+el servidor MySQL corriendo y credenciales válidas.
 
 ### Credenciales de demostración
 
 | Panel  | Usuario               | Contraseña |
 |--------|-----------------------|------------|
-| Admin  | `admin@yachay.lat`    | `password` |
-| Cliente| `cliente@yachay.lat`  | `password` |
+| Admin  | `admin@zuprahost.com`    | `password` |
+| Cliente| `cliente@zuprahost.com`  | `password` |
 
 > Cambia estas contraseñas antes de cualquier despliegue.
 

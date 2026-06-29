@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Yachay Panel')
+            ->brandName('zupraHost Panel')
             ->colors([
                 'primary' => Color::Indigo,
             ])
