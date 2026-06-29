@@ -6,9 +6,12 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Service;
+use App\Notifications\Channels\WhatsAppChannel;
+use App\Notifications\ExpiryReminderNotification;
 use App\Services\ApisPeruService;
 use App\Services\PaymentManager;
 use App\Services\ServiceManager;
+use App\Services\WhatsAppService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -98,6 +101,30 @@ class BusinessLogicTest extends TestCase
         $this->assertEquals('2027-01-01', $service->ends_at->format('Y-m-d'));
         $this->assertNotNull($renewal->invoice_id);
         $this->assertEquals(120.00, (float) $renewal->invoice->subtotal);
+    }
+
+    public function test_whatsapp_channel_added_only_when_enabled(): void
+    {
+        $notification = new ExpiryReminderNotification('servicio', 'Hosting Pro', '01/07/2026', 10);
+
+        config(['whatsapp.enabled' => false]);
+        $this->assertNotContains(WhatsAppChannel::class, $notification->via(new \stdClass));
+
+        config(['whatsapp.enabled' => true]);
+        $this->assertContains(WhatsAppChannel::class, $notification->via(new \stdClass));
+
+        $this->assertStringContainsString('Hosting Pro', $notification->toWhatsApp(new \stdClass));
+    }
+
+    public function test_whatsapp_service_normalizes_number_and_simulates_when_disabled(): void
+    {
+        config(['whatsapp.enabled' => false]);
+        $service = new WhatsAppService;
+
+        $this->assertEquals('51987654321', $service->normalize('987654321'));
+        $this->assertEquals('51987654321', $service->normalize('+51 987 654 321'));
+        // Deshabilitado: no envía (retorna false) pero no lanza error.
+        $this->assertFalse($service->send('987654321', 'Hola'));
     }
 
     public function test_client_default_document_type_follows_choice(): void

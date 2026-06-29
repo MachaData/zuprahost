@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Service;
+use App\Notifications\Channels\WhatsAppChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -15,7 +16,19 @@ class ServiceRenewedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        $channels = ['mail', 'database'];
+
+        if (config('whatsapp.enabled')) {
+            $channels[] = WhatsAppChannel::class;
+        }
+
+        return $channels;
+    }
+
+    public function toWhatsApp(object $notifiable): string
+    {
+        return '🔄 Tu servicio "'.$this->service->name.'" fue renovado hasta '
+            .optional($this->service->ends_at)->format('d/m/Y').'.';
     }
 
     public function toMail(object $notifiable): MailMessage

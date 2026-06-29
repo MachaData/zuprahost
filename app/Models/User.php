@@ -60,6 +60,14 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Route notifications for the WhatsApp channel (uses the client's number).
+     */
+    public function routeNotificationForWhatsApp(): ?string
+    {
+        return $this->client?->whatsapp;
+    }
+
+    /**
      * Determine which Filament panels this user may access.
      */
     public function canAccessPanel(Panel $panel): bool

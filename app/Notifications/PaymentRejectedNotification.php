@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Payment;
+use App\Notifications\Channels\WhatsAppChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -15,7 +16,19 @@ class PaymentRejectedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        $channels = ['mail', 'database'];
+
+        if (config('whatsapp.enabled')) {
+            $channels[] = WhatsAppChannel::class;
+        }
+
+        return $channels;
+    }
+
+    public function toWhatsApp(object $notifiable): string
+    {
+        return '⚠️ Tu pago por S/ '.number_format((float) $this->payment->amount, 2).' fue rechazado.'
+            .($this->payment->admin_note ? ' Motivo: '.$this->payment->admin_note : '');
     }
 
     public function toMail(object $notifiable): MailMessage

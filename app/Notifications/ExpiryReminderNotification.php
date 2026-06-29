@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Channels\WhatsAppChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -25,7 +26,23 @@ class ExpiryReminderNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        $channels = ['mail', 'database'];
+
+        if (config('whatsapp.enabled')) {
+            $channels[] = WhatsAppChannel::class;
+        }
+
+        return $channels;
+    }
+
+    public function toWhatsApp(object $notifiable): string
+    {
+        $when = $this->daysOffset > 0
+            ? "vence en {$this->daysOffset} días"
+            : ($this->daysOffset === 0 ? 'vence hoy' : 'venció hace '.abs($this->daysOffset).' días');
+
+        return "🔔 Recordatorio: tu {$this->kind} \"{$this->name}\" {$when}"
+            .($this->date ? " ({$this->date})" : '').'. Ingresa a tu panel para renovar.';
     }
 
     public function toMail(object $notifiable): MailMessage

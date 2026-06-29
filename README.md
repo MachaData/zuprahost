@@ -69,6 +69,15 @@ serie y número, y usa la acción **"Emitir SUNAT"**.
 
 ## Puesta en marcha
 
+### Opción rápida (un comando)
+
+```bash
+./setup.sh          # instala, configura .env, migra+siembra y compila assets
+php artisan serve   # inicia en http://localhost:8000
+```
+
+### Manual
+
 ```bash
 composer install
 cp .env.example .env
@@ -78,6 +87,9 @@ php artisan storage:link
 npm install && npm run build
 php artisan serve
 ```
+
+> Requisitos: PHP 8.2+ con extensiones `pdo_sqlite`/`pdo_mysql`, Composer y Node 18+.
+> Por defecto usa **SQLite** (sin configuración). Para MySQL, ajusta `DB_*` en `.env`.
 
 ### Credenciales de demostración
 

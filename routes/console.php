@@ -9,4 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Automatizaciones diarias: vencimientos y recordatorios.
-Schedule::command('app:process-billing-reminders')->dailyAt('08:00');
+// Hora configurable con REMINDERS_TIME (formato HH:MM, por defecto 08:00).
+Schedule::command('app:process-billing-reminders')->dailyAt(env('REMINDERS_TIME', '08:00'));
