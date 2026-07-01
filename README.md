@@ -109,6 +109,34 @@ DB_PASSWORD=tu_password
 `./setup.sh` ejecuta `CREATE DATABASE IF NOT EXISTS zuprahost` por ti; solo necesitas
 el servidor MySQL corriendo y credenciales válidas.
 
+### Local con Laravel Herd + OrbStack
+
+Con Herd (PHP y servidor) y OrbStack (MySQL en Docker):
+
+```bash
+# 1. Levanta MySQL en OrbStack (root sin contraseña, base "zuprahost")
+docker compose up -d
+
+# 2. En .env deja los valores por defecto de MySQL
+#    DB_HOST=127.0.0.1  DB_PORT=3306  DB_DATABASE=zuprahost  DB_USERNAME=root  DB_PASSWORD=
+
+# 3. Instala, migra, siembra y compila
+./setup.sh
+
+# 4. Publica el sitio con Herd (lo sirve en https://zuprahost.test)
+herd link zuprahost      # dentro de la carpeta del proyecto
+
+# 5. Assets en vivo mientras desarrollas
+npm run dev
+```
+
+Ajusta `APP_URL=https://zuprahost.test` en `.env`. Adminer queda en
+`http://localhost:8080` para inspeccionar la base (servidor `mysql`, usuario `root`,
+sin contraseña).
+
+> **Alternativa sin Docker:** Herd Pro incluye MySQL. Actívalo en Herd, usa
+> `DB_HOST=127.0.0.1`, `DB_USERNAME=root`, `DB_PASSWORD=` y omite `docker compose`.
+
 ### Credenciales de demostración
 
 | Panel  | Usuario               | Contraseña |

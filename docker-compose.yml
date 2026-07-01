@@ -1,0 +1,36 @@
+# MySQL para desarrollo local (compatible con OrbStack / Docker).
+# Uso:  docker compose up -d
+#
+# Deja la base de datos "zuprahost" en 127.0.0.1:3306 con root sin contraseña,
+# igual que los valores por defecto de .env.example.
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: zuprahost-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: zuprahost
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - zuprahost-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Interfaz web opcional para ver la base de datos en http://localhost:8080
+  adminer:
+    image: adminer:latest
+    container_name: zuprahost-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+
+volumes:
+  zuprahost-mysql:
