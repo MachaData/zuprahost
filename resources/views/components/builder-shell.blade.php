@@ -1,5 +1,5 @@
 @props([
-    'eyebrow' => 'Constructor de curso',
+    'eyebrow' => 'zupraHost',
     'heading' => '',
     'step' => null,
     'backUrl' => null,

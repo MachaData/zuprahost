@@ -6,5 +6,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Constructor de curso — Paso 1: tipo de contenido
-Route::view('/constructor', 'builder.type')->name('builder.type');
+// Contratar un servicio — Paso 1: elegir servicio
+Route::view('/contratar', 'order.type')->name('order.create');
+// Compatibilidad con el enlace anterior
+Route::redirect('/constructor', '/contratar');
