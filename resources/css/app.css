@@ -112,4 +112,34 @@
     .ys-btn-round {
         @apply flex size-9 items-center justify-center rounded-full border border-line bg-white text-ink-soft transition hover:bg-slate-50;
     }
+
+    /* --- Portal del cliente (dashboard tipo panel) --- */
+
+    /* Enlaces de la barra lateral */
+    .zp-nav {
+        @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-soft transition hover:bg-brand-50 hover:text-brand-700;
+    }
+
+    .zp-nav--active {
+        @apply bg-brand-50 font-semibold text-brand-700;
+    }
+
+    /* Tarjeta de estadística del encabezado */
+    .zp-stat {
+        @apply rounded-2xl border border-line bg-white p-5;
+        box-shadow: var(--shadow-card);
+    }
+
+    .zp-stat__value {
+        @apply mt-1 text-2xl font-bold text-ink;
+    }
+
+    .zp-stat__label {
+        @apply text-xs font-medium uppercase tracking-wide text-muted;
+    }
+
+    /* Enlace del panel derecho */
+    .zp-quick {
+        @apply flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 text-sm font-medium text-ink transition hover:border-brand-200 hover:bg-brand-50;
+    }
 }

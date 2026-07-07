@@ -68,7 +68,7 @@ class PanelSmokeTest extends TestCase
         $this->actingAs($this->clientUser());
 
         foreach ([
-            '/client',
+            '/panel',
             '/client/services',
             '/client/domains',
             '/client/invoices',
@@ -78,6 +78,20 @@ class PanelSmokeTest extends TestCase
         ] as $url) {
             $this->get($url)->assertOk();
         }
+    }
+
+    public function test_client_dashboard_redirects_to_custom_panel(): void
+    {
+        $this->actingAs($this->clientUser());
+        $this->get('/client')->assertRedirect('/panel');
+    }
+
+    public function test_panel_requires_client_profile(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Administrador');
+        $this->actingAs($admin);
+        $this->get('/panel')->assertForbidden();
     }
 
     public function test_client_cannot_access_admin(): void
