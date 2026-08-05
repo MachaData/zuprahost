@@ -142,4 +142,65 @@
     .zp-quick {
         @apply flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 text-sm font-medium text-ink transition hover:border-brand-200 hover:bg-brand-50;
     }
+
+    /* Pastilla de estado (servicios, dominios, facturas, licencias) */
+    .zp-badge {
+        @apply inline-flex shrink-0 items-center rounded-full px-3 py-1 text-xs font-medium;
+    }
+
+    /* Tabla del portal: encabezado tenue y filas separadas por línea */
+    .zp-table {
+        @apply w-full border-collapse text-sm;
+    }
+
+    .zp-table thead th {
+        @apply border-b border-line px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted;
+    }
+
+    .zp-table tbody td {
+        @apply border-b border-line px-6 py-4 align-middle text-ink;
+    }
+
+    .zp-table tbody tr:last-child td {
+        @apply border-b-0;
+    }
+
+    .zp-table tbody tr {
+        @apply transition hover:bg-brand-50/40;
+    }
+
+    /* Celda numérica (precios, totales) */
+    .zp-num {
+        @apply tabular-nums;
+    }
+
+    /* Estado vacío dentro de una tarjeta */
+    .zp-empty {
+        @apply px-6 py-14 text-center;
+    }
+
+    /* Etiqueta "clave" monoespaciada (licencias) */
+    .zp-key {
+        @apply rounded-lg bg-slate-100 px-2 py-1 font-mono text-xs text-ink-soft;
+    }
+
+    /* Formularios del portal */
+    .zp-label {
+        @apply mb-1.5 block text-sm font-semibold text-ink;
+    }
+
+    .zp-input {
+        @apply w-full rounded-xl border border-line bg-white px-4 py-2.5 text-sm text-ink transition
+            placeholder:text-muted focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100;
+    }
+
+    /* Diálogo nativo <dialog>: mismo lenguaje que .ys-card */
+    .zp-dialog {
+        @apply w-[min(30rem,calc(100vw-2rem))] rounded-2xl border border-line bg-white p-0 text-ink;
+        box-shadow: 0 24px 48px rgba(16, 35, 63, 0.18);
+    }
+
+    .zp-dialog::backdrop {
+        background-color: rgba(16, 35, 63, 0.45);
+    }
 }

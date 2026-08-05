@@ -5,12 +5,13 @@
 
 @php
     $nav = [
-        ['key' => 'panel',    'label' => 'Panel de control', 'url' => url('/panel'),            'icon' => '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'],
-        ['key' => 'services', 'label' => 'Mis servicios',    'url' => url('/client/services'),  'icon' => '<rect x="3" y="4" width="18" height="8" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 8h.01M7 17h.01"/>'],
-        ['key' => 'domains',  'label' => 'Dominios',          'url' => url('/client/domains'),   'icon' => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/>'],
-        ['key' => 'invoices', 'label' => 'Facturas',          'url' => url('/client/invoices'),  'icon' => '<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/>'],
+        ['key' => 'panel',    'label' => 'Inicio',            'url' => url('/panel'),            'icon' => '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/>'],
+        ['key' => 'renewals', 'label' => 'Renovaciones',      'url' => url('/panel/renovaciones'), 'icon' => '<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/>'],
+        ['key' => 'services', 'label' => 'Mis servicios',    'url' => url('/panel/servicios'),  'icon' => '<rect x="3" y="4" width="18" height="8" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 8h.01M7 17h.01"/>'],
+        ['key' => 'domains',  'label' => 'Dominios',          'url' => url('/panel/dominios'),   'icon' => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/>'],
+        ['key' => 'payments', 'label' => 'Pagos',              'url' => url('/panel/pagos'),      'icon' => '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/>'],
         ['key' => 'tickets',  'label' => 'Soporte',           'url' => url('/client/tickets'),   'icon' => '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>'],
-        ['key' => 'licenses', 'label' => 'Licencias',         'url' => url('/client/licenses'),  'icon' => '<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2"/><path d="m17 6 2 2M15 8l2 2"/>'],
+        ['key' => 'licenses', 'label' => 'Licencias',         'url' => url('/panel/licencias'),  'icon' => '<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2"/><path d="m17 6 2 2M15 8l2 2"/>'],
         ['key' => 'billing',  'label' => 'Facturación',       'url' => url('/client/billing-profile'), 'icon' => '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>'],
     ];
 @endphp

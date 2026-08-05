@@ -26,7 +26,7 @@ class TicketResource extends Resource
 
     protected static ?string $pluralModelLabel = 'soporte';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 5;
 
     public static function categories(): array
     {

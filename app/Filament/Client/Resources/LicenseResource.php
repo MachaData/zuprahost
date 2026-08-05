@@ -23,6 +23,10 @@ class LicenseResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
+    // La navegación la sirve <x-portal-shell> vía /panel/*; aquí solo
+    // se conserva la ruta (la usa la acción de subir comprobante).
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function canCreate(): bool
     {
         return false;

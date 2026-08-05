@@ -1,12 +1,4 @@
 @php
-    $statusColors = [
-        'activo' => 'bg-emerald-50 text-emerald-700',
-        'pendiente' => 'bg-slate-100 text-slate-600',
-        'suspendido' => 'bg-amber-50 text-amber-700',
-        'vencido' => 'bg-red-50 text-red-700',
-        'cancelado' => 'bg-slate-100 text-slate-500',
-    ];
-
     // Tarjetas de "más maneras de crecer" → llevan a /contratar
     $grow = [
         ['title' => 'Encuentra un nuevo dominio', 'text' => 'Registra un .com, .pe u otra extensión para que te encuentren fácil.', 'cta' => 'Buscar dominio', 'icon' => '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>'],
@@ -16,10 +8,10 @@
     ];
 @endphp
 
-<x-portal-shell :client="$client" active="panel" title="Panel de control">
+<x-portal-shell :client="$client" active="panel" title="Inicio">
     {{-- Saludo --}}
     <div class="mx-auto max-w-6xl">
-        <p class="ys-eyebrow">Panel de control</p>
+        <p class="ys-eyebrow">Inicio</p>
         <h1 class="mt-2 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
             Hola, {{ \Illuminate\Support\Str::of($client->name)->explode(' ')->first() }} 👋
         </h1>
@@ -54,11 +46,12 @@
                 <section class="ys-card !p-0 overflow-hidden">
                     <div class="flex items-center justify-between border-b border-line px-6 py-4">
                         <h2 class="font-bold text-ink">Tus servicios</h2>
-                        <a href="{{ url('/client/services') }}" class="ys-link !text-sm">Ver todos</a>
+                        <a href="{{ url('/panel/servicios') }}" class="ys-link !text-sm">Ver todos</a>
                     </div>
 
                     @forelse ($services as $service)
-                        <div class="flex items-center justify-between gap-4 border-b border-line px-6 py-4 last:border-0">
+                        <a href="{{ route('panel.service', $service) }}"
+                            class="flex items-center justify-between gap-4 border-b border-line px-6 py-4 transition last:border-0 hover:bg-brand-50/40">
                             <div class="min-w-0">
                                 <p class="truncate font-medium text-ink">{{ $service->name }}</p>
                                 <p class="text-xs text-muted">
@@ -66,10 +59,8 @@
                                     Vence {{ $service->ends_at?->format('d/m/Y') ?? '—' }}
                                 </p>
                             </div>
-                            <span class="shrink-0 rounded-full px-3 py-1 text-xs font-medium {{ $statusColors[$service->status] ?? 'bg-slate-100 text-slate-600' }}">
-                                {{ ucfirst($service->status) }}
-                            </span>
-                        </div>
+                            <x-status-badge :status="$service->status"/>
+                        </a>
                     @empty
                         <div class="px-6 py-10 text-center">
                             <p class="text-sm text-muted">Todavía no tienes servicios contratados.</p>
@@ -126,11 +117,18 @@
                 <section class="ys-card">
                     <h2 class="mb-3 font-bold text-ink">Accesos rápidos</h2>
                     <div class="space-y-2.5">
-                        <a href="{{ url('/client/invoices') }}" class="zp-quick">
+                        <a href="{{ url('/panel/pagos') }}" class="zp-quick">
                             <span class="ys-icon !size-9 !rounded-lg">
                                 <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/></svg>
                             </span>
                             Pagar una factura
+                        </a>
+                        <a href="{{ url('/panel/renovaciones') }}" class="zp-quick">
+                            <span class="ys-icon !size-9 !rounded-lg">
+                                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+                            </span>
+                            Ver qué vence pronto
                         </a>
                         <a href="{{ url('/client/tickets/create') }}" class="zp-quick">
                             <span class="ys-icon !size-9 !rounded-lg">

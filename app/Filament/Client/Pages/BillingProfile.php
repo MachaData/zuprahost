@@ -24,7 +24,7 @@ class BillingProfile extends Page implements HasForms
 
     protected static ?string $title = 'Datos de facturación';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 7;
 
     protected static string $view = 'filament.client.pages.billing-profile';
 
