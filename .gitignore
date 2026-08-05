@@ -15,7 +15,8 @@
 /node_modules
 /public/build
 /public/hot
-/public/storage
+# public/storage se versiona como enlace relativo: en el contenedor no
+# hay forma de crearlo en cada arranque sin que se pierda al redesplegar.
 /storage/*.key
 /storage/pail
 /vendor
