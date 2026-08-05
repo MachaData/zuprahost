@@ -27,7 +27,9 @@ php artisan storage:link --force >/dev/null 2>&1 || true
 # aborta y el servicio entra en un bucle de reinicios que parece un problema
 # de credenciales. Se comprueba con PDO directo para no arrancar el framework
 # en cada intento.
-echo "==> Esperando a la base de datos"
+# Se imprime el destino real: si aquí sale 127.0.0.1 el problema es que la
+# variable no llegó, no la red. Distinguirlo ahorra media hora de sospechas.
+echo "==> Esperando a la base de datos en ${DB_HOST:-127.0.0.1}:${DB_PORT:-3306}/${DB_DATABASE:-(sin nombre)} como ${DB_USERNAME:-(sin usuario)}"
 db_ready() {
     php -r '
         try {
