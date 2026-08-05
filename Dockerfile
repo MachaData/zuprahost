@@ -58,9 +58,10 @@ RUN mkdir -p storage/framework/sessions storage/framework/views \
 # fallaría, y cachear la configuración aquí congelaría variables vacías. Todo
 # eso ocurre en el arranque, cuando el entorno ya existe.
 
-# Railway inyecta PORT; 8080 es el valor por defecto en local.
+# Railway inyecta PORT; 8080 es solo el valor por defecto en local. SERVER_NAME
+# no se fija aquí: lo calcula el entrypoint a partir del puerto real, porque
+# dejarlo escrito haría que FrankenPHP escuchara donde nadie lo consulta.
 ENV PORT=8080
-ENV SERVER_NAME=":8080"
 
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
