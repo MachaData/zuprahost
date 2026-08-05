@@ -46,7 +46,7 @@ class AdminFlowTest extends TestCase
             ->fillForm([
                 'name' => 'Ana Soporte',
                 'email' => 'ana@zuprahost.com',
-                'password' => 'secreto-1234',
+                'password' => 'Secreto-Fuerte#2026',
                 'roles' => [\Spatie\Permission\Models\Role::where('name', 'Soporte')->first()->id],
             ])
             ->call('create')
@@ -55,7 +55,7 @@ class AdminFlowTest extends TestCase
         $user = User::where('email', 'ana@zuprahost.com')->first();
         $this->assertNotNull($user);
         $this->assertTrue($user->hasRole('Soporte'));
-        $this->assertTrue(Hash::check('secreto-1234', $user->password));
+        $this->assertTrue(Hash::check('Secreto-Fuerte#2026', $user->password));
     }
 
     public function test_admin_creates_a_client_and_grants_portal_access(): void
@@ -81,7 +81,7 @@ class AdminFlowTest extends TestCase
             ->callTableAction('crear_acceso', $client, [
                 'name' => 'Mi Empresa S.A.C.',
                 'email' => 'portal@miempresa.com',
-                'password' => 'secreto-1234',
+                'password' => 'Secreto-Fuerte#2026',
             ])
             ->assertHasNoTableActionErrors();
 

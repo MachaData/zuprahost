@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\EditProfile;
+use App\Support\Branding;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -27,7 +29,16 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('zupraHost Panel')
+            // Perfil propio: cada cuenta cambia su nombre y su contraseña sin
+            // pasar por un administrador. La página exige la contraseña actual.
+            ->profile(EditProfile::class, isSimple: false)
+            // La marca se resuelve en cada render, no al construir el panel:
+            // así el logo que se sube en Configuración aparece de inmediato y
+            // no se consulta la base de datos durante las migraciones.
+            ->brandName(fn (): string => Branding::name().' Panel')
+            ->brandLogo(fn (): ?string => Branding::logoUrl())
+            ->brandLogoHeight('2rem')
+            ->favicon(fn (): ?string => Branding::faviconUrl())
             ->colors([
                 'primary' => Color::Indigo,
             ])

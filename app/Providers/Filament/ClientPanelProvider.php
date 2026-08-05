@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\EditProfile;
+use App\Support\Branding;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -28,10 +30,15 @@ class ClientPanelProvider extends PanelProvider
             ->id('client')
             ->path('client')
             ->login()
-            ->brandName('zupraHost · Clientes')
+            ->profile(EditProfile::class, isSimple: false)
+            ->brandName(fn (): string => Branding::name().' · Clientes')
+            ->brandLogo(fn (): ?string => Branding::logoUrl())
+            ->brandLogoHeight('2rem')
+            ->favicon(fn (): ?string => Branding::faviconUrl())
             ->colors([
-                // Azul de marca (--color-brand-600 en resources/css/app.css)
-                'primary' => Color::hex('#2557e6'),
+                // Color de marca configurable; por defecto el azul del portal
+                // (--color-brand-600 en resources/css/app.css).
+                'primary' => Color::hex(Branding::color()),
             ])
             ->font('Inter')
             // El portal propio (/panel/*) solo tiene versión clara. Con el modo

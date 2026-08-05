@@ -5,6 +5,8 @@
      */
     $asInvoice = $asInvoice ?? false;
     $company = config('apisperu.company');
+    // DomPDF no descarga URLs: necesita la ruta del archivo en disco.
+    $logoPath = \App\Support\Branding::logoPath();
     $title = $asInvoice
         ? ucfirst($invoice->documentLabel() === 'nota-de-venta' ? 'nota de venta' : $invoice->documentLabel())
         : 'Recibo de pago';
@@ -50,7 +52,10 @@
     <table class="head">
         <tr>
             <td>
-                <p class="brand">{{ $company['razon_social'] ?? config('app.name') }}</p>
+                @if ($logoPath)
+                    <img src="{{ $logoPath }}" alt="" style="max-height: 46px; max-width: 190px; margin-bottom: 8px;">
+                @endif
+                <p class="brand">{{ $company['razon_social'] ?? \App\Support\Branding::name() }}</p>
                 @if (! empty($company['ruc']))
                     <p class="muted">RUC {{ $company['ruc'] }}</p>
                 @endif

@@ -14,6 +14,11 @@
         ['key' => 'licenses', 'label' => 'Licencias',         'url' => url('/panel/licencias'),  'icon' => '<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2"/><path d="m17 6 2 2M15 8l2 2"/>'],
         ['key' => 'billing',  'label' => 'Facturación',       'url' => url('/client/billing-profile'), 'icon' => '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>'],
     ];
+
+    $brandName = \App\Support\Branding::name();
+    $brandLogo = \App\Support\Branding::logoUrl();
+    $brandFavicon = \App\Support\Branding::faviconUrl();
+    $brandColor = \App\Support\Branding::color();
 @endphp
 
 <!DOCTYPE html>
@@ -21,19 +26,28 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'Mi panel' }} · zupraHost</title>
+    <title>{{ $title ?? 'Mi panel' }} · {{ $brandName }}</title>
+    @if ($brandFavicon)
+        <link rel="icon" href="{{ $brandFavicon }}">
+    @endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite('resources/css/app.css')
+    {{-- El color de marca se define en Configuración y pisa el valor del tema. --}}
+    <style>:root { --color-brand-600: {{ $brandColor }}; }</style>
 </head>
 <body class="min-h-full">
     <div class="flex min-h-screen">
         {{-- Barra lateral --}}
         <aside class="hidden w-64 shrink-0 flex-col border-r border-line bg-white px-4 py-5 lg:flex">
             <div class="flex items-center gap-2 px-2">
-                <span class="flex size-9 items-center justify-center rounded-xl bg-brand-600 text-sm font-extrabold text-white">z</span>
-                <span class="text-lg font-extrabold tracking-tight text-ink">zupraHost</span>
+                @if ($brandLogo)
+                    <img src="{{ $brandLogo }}" alt="{{ $brandName }}" class="h-9 w-auto max-w-[11rem] object-contain">
+                @else
+                    <span class="flex size-9 items-center justify-center rounded-xl bg-brand-600 text-sm font-extrabold text-white">{{ \App\Support\Branding::initials() }}</span>
+                    <span class="text-lg font-extrabold tracking-tight text-ink">{{ $brandName }}</span>
+                @endif
             </div>
 
             {{-- Cuenta --}}
@@ -71,8 +85,12 @@
             {{-- Barra superior --}}
             <header class="flex h-16 items-center justify-between border-b border-line bg-white px-6">
                 <div class="flex items-center gap-2 lg:hidden">
-                    <span class="flex size-8 items-center justify-center rounded-lg bg-brand-600 text-xs font-extrabold text-white">z</span>
-                    <span class="font-extrabold text-ink">zupraHost</span>
+                    @if ($brandLogo)
+                        <img src="{{ $brandLogo }}" alt="{{ $brandName }}" class="h-8 w-auto max-w-[9rem] object-contain">
+                    @else
+                        <span class="flex size-8 items-center justify-center rounded-lg bg-brand-600 text-xs font-extrabold text-white">{{ \App\Support\Branding::initials() }}</span>
+                        <span class="font-extrabold text-ink">{{ $brandName }}</span>
+                    @endif
                 </div>
                 <p class="hidden text-sm text-muted lg:block">{{ $client?->email }}</p>
                 <a href="{{ url('/contratar') }}" class="ys-btn ys-btn--primary !px-4 !py-2.5">

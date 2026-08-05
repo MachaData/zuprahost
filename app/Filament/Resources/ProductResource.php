@@ -7,9 +7,11 @@ use App\Models\Product;
 use App\Filament\Concerns\AuthorizesWithPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProductResource extends Resource
 {
@@ -116,18 +118,98 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('billing_cycle')->label('Cobro')->badge(),
                 Tables\Columns\TextColumn::make('price')->label('Precio')->money('PEN')->sortable(),
                 Tables\Columns\TextColumn::make('cost')->label('Costo')->money('PEN')->toggleable(),
+                // Cuántos clientes dependen de este plan: es lo que decide si
+                // un cambio de precio o una baja son inocuos o no.
+                Tables\Columns\TextColumn::make('services_count')->label('Contratado por')
+                    ->counts('services')
+                    ->suffix(' servicios')
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('is_active')->label('Activo')->boolean(),
                 Tables\Columns\IconColumn::make('is_renewable')->label('Renovable')->boolean()->toggleable(),
             ])
+            ->defaultSort('name')
             ->filters([
                 Tables\Filters\SelectFilter::make('category')->label('Categoría')->options(self::categories()),
                 Tables\Filters\TernaryFilter::make('is_active')->label('Activo'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
+                // Casi todos los planes nacen como variante de otro: copiar y
+                // ajustar evita volver a escribir quince características.
+                Tables\Actions\ReplicateAction::make()
+                    ->label('Duplicar')
+                    ->icon('heroicon-o-document-duplicate')
+                    // services_count no es una columna: lo añade el withCount
+                    // de la tabla y al copiarlo el insert falla.
+                    ->excludeAttributes(['created_at', 'updated_at', 'services_count'])
+                    ->beforeReplicaSaved(function (Product $replica): void {
+                        $replica->name = $replica->name.' (copia)';
+                        // Sale desactivado a propósito: un plan a medio ajustar
+                        // no debe poder contratarse.
+                        $replica->is_active = false;
+                    })
+                    ->successRedirectUrl(fn (Product $replica): string => static::getUrl('edit', ['record' => $replica])),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('activate')
+                        ->label('Activar')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(fn (Collection $records) => $records->each->update(['is_active' => true])),
+
+                    Tables\Actions\BulkAction::make('deactivate')
+                        ->label('Desactivar')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalDescription('Los servicios ya contratados no cambian; el plan solo deja de ofrecerse.')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(fn (Collection $records) => $records->each->update(['is_active' => false])),
+
+                    // Subir la lista de precios un 8 % a mano, plan por plan,
+                    // es donde se cuelan los errores de tipeo.
+                    Tables\Actions\BulkAction::make('adjustPrice')
+                        ->label('Ajustar precios')
+                        ->icon('heroicon-o-arrow-trending-up')
+                        ->color('primary')
+                        ->deselectRecordsAfterCompletion()
+                        ->form([
+                            Forms\Components\Radio::make('mode')->label('Cómo ajustar')
+                                ->options([
+                                    'percent' => 'Por porcentaje',
+                                    'amount' => 'Sumando o restando un monto',
+                                ])
+                                ->default('percent')
+                                ->required(),
+                            Forms\Components\TextInput::make('value')->label('Valor')
+                                ->numeric()
+                                ->required()
+                                ->helperText('Usa negativos para bajar precios: -10 es un 10 % menos o S/ 10 menos.'),
+                            Forms\Components\Toggle::make('round')->label('Redondear a soles enteros')->default(true),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $product) {
+                                $price = $data['mode'] === 'percent'
+                                    ? $product->price * (1 + ((float) $data['value'] / 100))
+                                    : $product->price + (float) $data['value'];
+
+                                // Nunca por debajo de cero: un precio negativo
+                                // generaría facturas en negativo.
+                                $price = max(0, $data['round'] ? round($price) : round($price, 2));
+
+                                $product->update(['price' => $price]);
+                            }
+
+                            Notification::make()
+                                ->title($records->count().' precios actualizados')
+                                ->success()
+                                ->send();
+                        }),
+
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

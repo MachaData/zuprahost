@@ -11,6 +11,18 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Este seeder crea contenido de demostración con contraseñas conocidas.
+        // Ejecutarlo contra la base real dejaría dos cuentas abiertas con la
+        // palabra "password"; en producción se usa `php artisan zuprahost:admin`.
+        if (app()->isProduction() && ! app()->runningUnitTests()) {
+            $this->command?->error(
+                'DatabaseSeeder crea datos de demostración y no debe ejecutarse en producción. '.
+                'Usa: php artisan db:seed --class=RolePermissionSeeder  y luego  php artisan zuprahost:admin'
+            );
+
+            return;
+        }
+
         $this->call(RolePermissionSeeder::class);
 
         // Administrador principal.

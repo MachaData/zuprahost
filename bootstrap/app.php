@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // enlaces http:// dentro de una página https:// y el navegador
         // bloquearía los recursos de Filament.
         $middleware->trustProxies(at: '*');
+
+        // Global, no en el grupo `web`: los paneles de Filament registran sus
+        // rutas con su propia pila de middleware y se saltarían el grupo.
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

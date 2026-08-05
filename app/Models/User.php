@@ -26,6 +26,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'password_changed_at',
     ];
 
     /**
@@ -48,7 +49,27 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
+            'password_changed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * ¿Es la última cuenta con rol Administrador?
+     *
+     * Se consulta antes de borrar o degradar a alguien: quedarse sin ningún
+     * administrador deja el panel inaccesible y solo se arregla por consola.
+     */
+    public function isLastAdministrator(): bool
+    {
+        if (! $this->hasRole('Administrador')) {
+            return false;
+        }
+
+        return static::query()
+            ->whereHas('roles', fn ($query) => $query->where('name', 'Administrador'))
+            ->whereKeyNot($this->getKey())
+            ->doesntExist();
     }
 
     /**
