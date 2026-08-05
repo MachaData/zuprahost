@@ -2,18 +2,22 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
     /**
-     * A basic test example.
+     * Deliberadamente sin RefreshDatabase: no hay tablas.
+     *
+     * La portada es lo primero que ve quien está evaluando si contratarnos.
+     * Si una caída de la base de datos la tumbara, perderíamos también la
+     * página que explica quiénes somos y cómo contactarnos, justo cuando peor
+     * viene. Pierde los precios; el resto se sostiene.
      */
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_the_home_page_survives_without_a_database(): void
     {
-        $response = $this->get('/');
-
-        $response->assertStatus(200);
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Todo lo que tu sitio necesita');
     }
 }

@@ -203,4 +203,107 @@
     .zp-dialog::backdrop {
         background-color: rgba(16, 35, 63, 0.45);
     }
+
+    /* --- Sitio público (zuprahost.site) --- */
+
+    .zs-container {
+        @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+    }
+
+    .zs-navlink {
+        @apply rounded-lg px-3 py-2 text-sm font-medium text-ink-soft transition hover:bg-slate-100 hover:text-ink;
+    }
+
+    .zs-foot-title {
+        @apply text-xs font-semibold uppercase tracking-[0.14em] text-white/50;
+    }
+
+    .zs-footlink {
+        @apply text-white/70 transition hover:text-white;
+    }
+
+    /* Encabezado centrado de sección */
+    .zs-section-title {
+        @apply text-center text-3xl font-extrabold tracking-tight text-ink sm:text-4xl;
+    }
+
+    .zs-section-lead {
+        @apply mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-muted;
+    }
+
+    /* Tarjeta de plan. El borde se refuerza en la destacada y al pasar por
+       encima, como en las tablas de precios que sirvieron de referencia. */
+    .zs-plan {
+        @apply relative flex flex-col rounded-2xl border border-line bg-white p-6 transition duration-200;
+        box-shadow: var(--shadow-card);
+    }
+
+    .zs-plan:hover {
+        @apply border-brand-300;
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .zs-plan--featured {
+        @apply border-2 border-brand-600;
+    }
+
+    .zs-plan__price {
+        @apply text-4xl font-extrabold tracking-tight text-ink;
+    }
+
+    .zs-plan__cycle {
+        @apply text-sm font-medium text-muted;
+    }
+
+    /* Botón secundario de plan: contorno azul, se rellena al pasar por encima */
+    .ys-btn--outline {
+        @apply border border-brand-600 text-brand-600 hover:bg-brand-600 hover:text-white;
+    }
+
+    /* Pestañas de categoría sin JavaScript: el radio queda oculto y el panel
+       correspondiente se muestra con :has() desde el contenedor. Las reglas
+       por categoría se generan en la vista, porque las categorías salen de la
+       base de datos. */
+    .zs-tabs__input {
+        @apply sr-only;
+    }
+
+    .zs-tabs__label {
+        @apply cursor-pointer rounded-xl border border-line bg-white px-5 py-3 text-sm font-semibold text-ink-soft transition hover:border-brand-300 hover:text-ink;
+    }
+
+    .zs-tabs__input:checked + .zs-tabs__label {
+        @apply border-brand-600 bg-brand-50 text-brand-700;
+    }
+
+    .zs-tabs__panel {
+        display: none;
+    }
+
+    /* Fila de la lista de características de un plan */
+    .zs-feature {
+        @apply flex items-start justify-between gap-2 border-b border-line/70 py-2.5 text-[13px] last:border-b-0;
+    }
+
+    /* Pregunta frecuente: <details> nativo, sin JavaScript */
+    .zs-faq {
+        @apply rounded-2xl border border-line bg-white transition;
+        box-shadow: var(--shadow-card);
+    }
+
+    .zs-faq[open] {
+        @apply border-brand-200;
+    }
+
+    .zs-faq > summary {
+        @apply flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 text-base font-bold text-ink;
+    }
+
+    .zs-faq > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .zs-faq[open] > summary svg {
+        @apply rotate-180;
+    }
 }

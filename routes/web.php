@@ -1,11 +1,12 @@
 <?php
 
 use App\Http\Controllers\PanelController;
+use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Sitio público: los planes y los precios salen del catálogo real, así que
+// una tarifa que se cambia en el panel se ve aquí sin tocar código.
+Route::get('/', [SiteController::class, 'home'])->name('site.home');
 
 // Contratar un servicio — Paso 1: elegir servicio
 Route::view('/contratar', 'order.type')->name('order.create');
