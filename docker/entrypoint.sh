@@ -64,6 +64,12 @@ echo "    conectado"
 echo "==> Migrando base de datos"
 php artisan migrate --force
 
+# Roles y permisos son estructura, no datos de ejemplo: sin ellos nadie puede
+# entrar al panel. El seeder usa findOrCreate, así que repetirlo en cada
+# despliegue es inocuo y además incorpora los permisos que se añadan después.
+echo "==> Sincronizando roles y permisos"
+php artisan db:seed --class=RolePermissionSeeder --force
+
 # Las cachés se generan ahora, con las variables ya presentes. Hacerlo en el
 # build las congelaría vacías.
 echo "==> Preparando cachés"
