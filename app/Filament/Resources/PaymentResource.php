@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Services\PaymentManager;
+use App\Filament\Concerns\AuthorizesWithPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -14,6 +16,13 @@ use Filament\Tables\Table;
 
 class PaymentResource extends Resource
 {
+    use AuthorizesWithPermissions;
+
+    public static function permissionName(): string
+    {
+        return 'payment';
+    }
+
     protected static ?string $model = Payment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
@@ -47,10 +56,9 @@ class PaymentResource extends Resource
                 Forms\Components\Select::make('invoice_id')->label('Factura')
                     ->relationship('invoice', 'code')->searchable()->preload(),
                 Forms\Components\TextInput::make('amount')->label('Monto pagado')->numeric()->prefix('S/')->required(),
-                Forms\Components\Select::make('method')->label('Método de pago')->options([
-                    'yape' => 'Yape', 'plin' => 'Plin', 'transferencia' => 'Transferencia bancaria',
-                    'efectivo' => 'Efectivo', 'manual' => 'Pago manual', 'otro' => 'Otro',
-                ])->default('transferencia')->required(),
+                Forms\Components\Select::make('method')->label('Método de pago')
+                    ->options(fn () => PaymentMethod::methodOptions())
+                    ->default('transferencia')->required(),
                 Forms\Components\DatePicker::make('paid_at')->label('Fecha de pago')->default(now()),
                 Forms\Components\TextInput::make('operation_code')->label('Código de operación'),
                 Forms\Components\Select::make('status')->label('Estado')->options([
@@ -89,7 +97,7 @@ class PaymentResource extends Resource
                     ->label('Aprobar')
                     ->icon('heroicon-m-check')
                     ->color('success')
-                    ->visible(fn (Payment $r) => $r->status !== 'aprobado')
+                    ->visible(fn (Payment $r) => $r->status !== 'aprobado' && auth()->user()?->can('update payment'))
                     ->requiresConfirmation()
                     ->action(function (Payment $r) {
                         app(PaymentManager::class)->approve($r);
@@ -99,7 +107,7 @@ class PaymentResource extends Resource
                     ->label('Rechazar')
                     ->icon('heroicon-m-x-mark')
                     ->color('danger')
-                    ->visible(fn (Payment $r) => $r->status !== 'rechazado')
+                    ->visible(fn (Payment $r) => $r->status !== 'rechazado' && auth()->user()?->can('update payment'))
                     ->form([
                         Forms\Components\Textarea::make('admin_note')->label('Motivo')->required(),
                     ])

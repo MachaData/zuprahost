@@ -25,6 +25,10 @@ class InvoiceResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    // La navegación la sirve <x-portal-shell> vía /panel/*; aquí solo
+    // se conserva la ruta (la usa la acción de subir comprobante).
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function canCreate(): bool
     {
         return false;
@@ -59,10 +63,15 @@ class InvoiceResource extends Resource
                     ->form([
                         Forms\Components\TextInput::make('amount')->label('Monto pagado')->numeric()->prefix('S/')
                             ->default(fn (Invoice $r) => $r->total)->required(),
-                        Forms\Components\Select::make('method')->label('Método de pago')->options([
-                            'yape' => 'Yape', 'plin' => 'Plin', 'transferencia' => 'Transferencia bancaria',
-                            'efectivo' => 'Efectivo', 'otro' => 'Otro',
-                        ])->default('yape')->required(),
+                        // Solo los métodos habilitados para este cliente: no
+                        // tiene sentido ofrecerle uno por el que no puede pagar.
+                        Forms\Components\Select::make('method')->label('Método de pago')
+                            ->options(fn () => static::currentClient()
+                                ?->availablePaymentMethods()
+                                ->pluck('name', 'code')
+                                ->all() ?? [])
+                            ->default(fn () => static::currentClient()?->availablePaymentMethods()->first()?->code)
+                            ->required(),
                         Forms\Components\DatePicker::make('paid_at')->label('Fecha de pago')->default(now())->required(),
                         Forms\Components\TextInput::make('operation_code')->label('Código de operación'),
                         Forms\Components\FileUpload::make('receipt_path')->label('Imagen del comprobante')
