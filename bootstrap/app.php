@@ -15,6 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // clientes la sirve el panel Filament. Sin esto, /panel revienta con
         // "Route [login] not defined" para visitantes sin sesión.
         $middleware->redirectGuestsTo(fn () => route('filament.client.auth.login'));
+
+        // Detrás del proxy de Railway la aplicación recibe las peticiones por
+        // HTTP; sin confiar en las cabeceras X-Forwarded-*, Laravel generaría
+        // enlaces http:// dentro de una página https:// y el navegador
+        // bloquearía los recursos de Filament.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
