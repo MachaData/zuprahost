@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LicenseResource\Pages;
 use App\Models\License;
+use App\Filament\Concerns\AuthorizesWithPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,6 +13,13 @@ use Filament\Tables\Table;
 
 class LicenseResource extends Resource
 {
+    use AuthorizesWithPermissions;
+
+    public static function permissionName(): string
+    {
+        return 'license';
+    }
+
     protected static ?string $model = License::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-key';

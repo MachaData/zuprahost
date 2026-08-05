@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\RelationManagers;
 use App\Models\Ticket;
+use App\Filament\Concerns\AuthorizesWithPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class TicketResource extends Resource
 {
+    use AuthorizesWithPermissions;
+
+    public static function permissionName(): string
+    {
+        return 'ticket';
+    }
+
     protected static ?string $model = Ticket::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-lifebuoy';

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use App\Filament\Concerns\AuthorizesWithPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,6 +14,13 @@ use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
+    use AuthorizesWithPermissions;
+
+    public static function permissionName(): string
+    {
+        return 'user';
+    }
+
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';

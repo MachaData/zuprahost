@@ -5,14 +5,26 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ClientResource\Pages;
 use App\Filament\Resources\ClientResource\RelationManagers;
 use App\Models\Client;
+use App\Models\User;
+use App\Filament\Concerns\AuthorizesWithPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ClientResource extends Resource
 {
+    use AuthorizesWithPermissions;
+
+    public static function permissionName(): string
+    {
+        return 'client';
+    }
+
     protected static ?string $model = Client::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
@@ -98,14 +110,38 @@ class ClientResource extends Resource
                         ->required(),
                 ]),
             Forms\Components\Section::make('Acceso al portal')
-                ->description('Vincula un usuario para que el cliente pueda ingresar a clientes.zuprahost.com')
-                ->collapsed()
+                ->description('Sin usuario vinculado el cliente no puede entrar. Usa «Dar acceso al portal» en el listado para crearlo de una vez.')
+                ->collapsed(fn (?Client $record) => $record?->user_id !== null)
                 ->schema([
                     Forms\Components\Select::make('user_id')
                         ->label('Usuario vinculado')
-                        ->relationship('user', 'name')
+                        // Solo usuarios con rol Cliente y que no pertenezcan ya
+                        // a otro cliente: vincular un admin aquí le daría a esa
+                        // cuenta el portal de otra persona.
+                        ->relationship(
+                            'user',
+                            'email',
+                            fn ($query, ?Client $record) => $query
+                                ->whereHas('roles', fn ($q) => $q->where('name', 'Cliente'))
+                                ->where(fn ($q) => $q
+                                    ->doesntHave('client')
+                                    ->when($record?->user_id, fn ($q, $id) => $q->orWhere('users.id', $id))),
+                        )
                         ->searchable()
-                        ->preload(),
+                        ->preload()
+                        ->placeholder('Sin acceso al portal'),
+                ]),
+            Forms\Components\Section::make('Métodos de pago')
+                ->description('Sin marcar nada, el cliente ve todos los métodos activos. Marca solo si quieres limitarlo a algunos.')
+                ->collapsed(fn (?Client $record) => ! $record?->hasCustomPaymentMethods())
+                ->schema([
+                    Forms\Components\CheckboxList::make('paymentMethods')
+                        ->label('Limitar a estos métodos')
+                        ->relationship('paymentMethods', 'name')
+                        ->descriptions(fn () => \App\Models\PaymentMethod::pluck('bank', 'id')->filter()->all())
+                        ->columns(3)
+                        ->bulkToggleable()
+                        ->helperText('El enlace de pago no se marca aquí: se carga en cada servicio.'),
                 ]),
             Forms\Components\Textarea::make('notes')
                 ->label('Notas internas')
@@ -150,6 +186,10 @@ class ClientResource extends Resource
                     ->label('Servicios')
                     ->counts('services')
                     ->badge(),
+                Tables\Columns\IconColumn::make('user_id')
+                    ->label('Portal')
+                    ->boolean()
+                    ->tooltip(fn (Client $r) => $r->user_id ? 'Puede entrar al portal' : 'Sin acceso al portal'),
                 Tables\Columns\TextColumn::make('registered_at')
                     ->label('Registro')
                     ->date()
@@ -174,6 +214,40 @@ class ClientResource extends Resource
                     ]),
             ])
             ->actions([
+                // Crear el usuario y vincularlo en un solo paso: hacerlo en dos
+                // pantallas deja clientes sin acceso, que es un 403 al entrar.
+                Tables\Actions\Action::make('crear_acceso')
+                    ->label('Dar acceso al portal')
+                    ->icon('heroicon-m-key')
+                    ->color('success')
+                    ->visible(fn (Client $r) => $r->user_id === null)
+                    ->modalHeading(fn (Client $r) => "Dar acceso a {$r->name}")
+                    ->modalSubmitActionLabel('Crear acceso')
+                    ->fillForm(fn (Client $r) => ['email' => $r->email, 'name' => $r->name])
+                    ->form([
+                        Forms\Components\TextInput::make('name')->label('Nombre del usuario')->required(),
+                        Forms\Components\TextInput::make('email')->label('Correo de acceso')
+                            ->email()->required()
+                            ->unique(table: User::class, column: 'email'),
+                        Forms\Components\TextInput::make('password')->label('Contraseña')
+                            ->password()->revealable()->required()->minLength(8)
+                            ->default(fn () => Str::password(12))
+                            ->helperText('Cópiala antes de guardar: no se vuelve a mostrar.'),
+                    ])
+                    ->action(function (Client $record, array $data) {
+                        $user = User::create([
+                            'name' => $data['name'],
+                            'email' => $data['email'],
+                            'password' => Hash::make($data['password']),
+                        ]);
+                        $user->assignRole('Cliente');
+                        $record->update(['user_id' => $user->id]);
+
+                        Notification::make()
+                            ->title('Acceso creado')
+                            ->body("{$data['email']} ya puede entrar al portal.")
+                            ->success()->send();
+                    }),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
