@@ -22,6 +22,43 @@ chmod -R ug+rwx storage bootstrap/cache 2>/dev/null || true
 # montaje lo dejó apuntando a un directorio que ya no existe.
 php artisan storage:link --force >/dev/null 2>&1 || true
 
+# La red privada de Railway tarda unos segundos en ser enrutable después de
+# arrancar el contenedor. Sin esperarla, la primera conexión falla, el script
+# aborta y el servicio entra en un bucle de reinicios que parece un problema
+# de credenciales. Se comprueba con PDO directo para no arrancar el framework
+# en cada intento.
+echo "==> Esperando a la base de datos"
+db_ready() {
+    php -r '
+        try {
+            new PDO(
+                sprintf("mysql:host=%s;port=%s;dbname=%s",
+                    getenv("DB_HOST") ?: "127.0.0.1",
+                    getenv("DB_PORT") ?: "3306",
+                    getenv("DB_DATABASE")),
+                getenv("DB_USERNAME"),
+                getenv("DB_PASSWORD"),
+                [PDO::ATTR_TIMEOUT => 3],
+            );
+        } catch (Throwable $e) {
+            fwrite(STDERR, "    ".$e->getMessage().PHP_EOL);
+            exit(1);
+        }
+    '
+}
+
+attempt=1
+until db_ready 2>/dev/null; do
+    if [ "$attempt" -ge 20 ]; then
+        echo "!!! La base de datos no respondió tras 40 segundos. Último error:"
+        db_ready || true
+        exit 1
+    fi
+    attempt=$((attempt + 1))
+    sleep 2
+done
+echo "    conectado"
+
 echo "==> Migrando base de datos"
 php artisan migrate --force
 
