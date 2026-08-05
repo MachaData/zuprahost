@@ -65,7 +65,9 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // Negocio peruano: las fechas de comprobantes, vencimientos y recordatorios
+    // tienen que leerse en hora local, no en UTC.
+    'timezone' => env('APP_TIMEZONE', 'America/Lima'),
 
     /*
     |--------------------------------------------------------------------------

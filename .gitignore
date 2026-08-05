@@ -24,3 +24,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Base SQLite suelta en la raíz (quedó de una configuración anterior)
+/zuprahost
