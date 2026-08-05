@@ -229,25 +229,71 @@ class ClientResource extends Resource
                         Forms\Components\TextInput::make('email')->label('Correo de acceso')
                             ->email()->required()
                             ->unique(table: User::class, column: 'email'),
-                        Forms\Components\TextInput::make('password')->label('Contraseña')
-                            ->password()->revealable()->required()->minLength(8)
-                            ->default(fn () => Str::password(12))
-                            ->helperText('Cópiala antes de guardar: no se vuelve a mostrar.'),
+                        Forms\Components\TextInput::make('password')->label('Contraseña temporal')
+                            ->password()->revealable()->required()
+                            ->rule(\Illuminate\Validation\Rules\Password::defaults())
+                            ->default(fn () => \App\Support\Credentials::password())
+                            ->helperText('Cópiala antes de guardar: no se vuelve a mostrar. El cliente puede cambiarla desde «Mi cuenta».'),
                     ])
                     ->action(function (Client $record, array $data) {
                         $user = User::create([
                             'name' => $data['name'],
                             'email' => $data['email'],
                             'password' => Hash::make($data['password']),
+                            'password_changed_at' => now(),
                         ]);
                         $user->assignRole('Cliente');
                         $record->update(['user_id' => $user->id]);
 
                         Notification::make()
                             ->title('Acceso creado')
-                            ->body("{$data['email']} ya puede entrar al portal.")
-                            ->success()->send();
+                            ->body("{$data['email']} ya puede entrar en ".url('/client/login'))
+                            ->success()->persistent()->send();
                     }),
+
+                // Un cliente que olvida su contraseña llama por teléfono. Sin
+                // esto había que entrar por consola a cambiarla a mano.
+                Tables\Actions\Action::make('restablecer_acceso')
+                    ->label('Restablecer contraseña')
+                    ->icon('heroicon-m-arrow-path')
+                    ->color('warning')
+                    ->visible(fn (Client $r) => $r->user_id !== null)
+                    ->modalHeading(fn (Client $r) => "Nueva contraseña para {$r->name}")
+                    ->modalDescription('Se cierran además todas sus sesiones abiertas.')
+                    ->modalSubmitActionLabel('Restablecer')
+                    ->fillForm(fn () => ['password' => \App\Support\Credentials::password()])
+                    ->form([
+                        Forms\Components\TextInput::make('password')->label('Contraseña temporal')
+                            ->password()->revealable()->required()
+                            ->rule(\Illuminate\Validation\Rules\Password::defaults())
+                            ->helperText('Cópiala antes de guardar: no se vuelve a mostrar.'),
+                    ])
+                    ->action(function (Client $record, array $data) {
+                        $user = $record->user;
+
+                        if (! $user) {
+                            return;
+                        }
+
+                        $user->forceFill([
+                            'password' => Hash::make($data['password']),
+                            'password_changed_at' => now(),
+                            // Invalida las cookies de «recordarme».
+                            'remember_token' => Str::random(60),
+                        ])->save();
+
+                        if (config('session.driver') === 'database') {
+                            \Illuminate\Support\Facades\DB::table('sessions')
+                                ->where('user_id', $user->getKey())
+                                ->delete();
+                        }
+
+                        Notification::make()
+                            ->title('Contraseña restablecida')
+                            ->body("Pásasela a {$user->email} por un canal seguro. Debería cambiarla al entrar.")
+                            ->success()->persistent()->send();
+                    }),
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])

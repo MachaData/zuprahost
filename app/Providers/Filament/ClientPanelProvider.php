@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\EditProfile;
 use App\Support\Branding;
+use App\Support\MailDelivery;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -30,6 +31,14 @@ class ClientPanelProvider extends PanelProvider
             ->id('client')
             ->path('client')
             ->login()
+            // «¿Olvidaste tu contraseña?» solo si hay correo saliente de
+            // verdad; si no, el cliente esperaría un mensaje que nunca sale.
+            // Sin correo configurado, quien restablece es el administrador
+            // desde la ficha del cliente.
+            ->when(
+                MailDelivery::isConfigured(),
+                fn (Panel $panel): Panel => $panel->passwordReset(),
+            )
             ->profile(EditProfile::class, isSimple: false)
             ->brandName(fn (): string => Branding::name().' · Clientes')
             ->brandLogo(fn (): ?string => Branding::logoUrl())
@@ -71,6 +80,11 @@ class ClientPanelProvider extends PanelProvider
                     ->url('/panel/pagos')->icon('heroicon-o-credit-card')->sort(4),
                 NavigationItem::make('Licencias')
                     ->url('/panel/licencias')->icon('heroicon-o-key')->sort(6),
+                // El portal propio no tiene menú de usuario arriba a la
+                // derecha, así que el cambio de contraseña vive en la barra
+                // lateral igual que el resto.
+                NavigationItem::make('Mi cuenta')
+                    ->url('/client/profile')->icon('heroicon-o-user-circle')->sort(9),
             ])
             ->discoverWidgets(in: app_path('Filament/Client/Widgets'), for: 'App\\Filament\\Client\\Widgets')
             ->widgets([

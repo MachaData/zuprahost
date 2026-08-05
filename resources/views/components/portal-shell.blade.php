@@ -13,6 +13,7 @@
         ['key' => 'tickets',  'label' => 'Soporte',           'url' => url('/client/tickets'),   'icon' => '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>'],
         ['key' => 'licenses', 'label' => 'Licencias',         'url' => url('/panel/licencias'),  'icon' => '<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2"/><path d="m17 6 2 2M15 8l2 2"/>'],
         ['key' => 'billing',  'label' => 'Facturación',       'url' => url('/client/billing-profile'), 'icon' => '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>'],
+        ['key' => 'profile',  'label' => 'Mi cuenta',         'url' => url('/client/profile'),   'icon' => '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'],
     ];
 
     $brandName = \App\Support\Branding::name();
