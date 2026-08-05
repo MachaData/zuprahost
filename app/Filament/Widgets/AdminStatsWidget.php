@@ -22,6 +22,11 @@ class AdminStatsWidget extends BaseWidget
             ->whereYear('paid_at', now()->year)
             ->sum('amount');
 
+        // Se calcula factura por factura para no compensar la deuda de una
+        // con lo pagado de más en otra.
+        $outstanding = Invoice::outstanding()->get()->sum(fn (Invoice $i) => $i->balance());
+        $overdue = Invoice::overdue()->get()->sum(fn (Invoice $i) => $i->balance());
+
         return [
             Stat::make('Clientes', Client::count())
                 ->description('Total de clientes')
@@ -33,10 +38,15 @@ class AdminStatsWidget extends BaseWidget
                 ->color('success')
                 ->icon('heroicon-o-server-stack'),
 
-            Stat::make('Facturas pendientes', Invoice::whereIn('status', ['pendiente', 'parcial'])->count())
-                ->description('Por cobrar')
-                ->color('warning')
+            Stat::make('Por cobrar', 'S/ '.number_format($outstanding, 2))
+                ->description(Invoice::outstanding()->count().' facturas con saldo')
+                ->color($outstanding > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-document-text'),
+
+            Stat::make('Deuda vencida', 'S/ '.number_format($overdue, 2))
+                ->description(Invoice::overdue()->count().' facturas pasadas de fecha')
+                ->color($overdue > 0 ? 'danger' : 'success')
+                ->icon('heroicon-o-clock'),
 
             Stat::make('Ingresos del mes', 'S/ '.number_format((float) $monthIncome, 2))
                 ->description('Pagos aprobados')
@@ -55,8 +65,8 @@ class AdminStatsWidget extends BaseWidget
                 ->color('info')
                 ->icon('heroicon-o-lifebuoy'),
 
-            Stat::make('Clientes deudores', Client::where('status', 'deudor')->count())
-                ->description('Con saldo pendiente')
+            Stat::make('Clientes deudores', Client::whereHas('invoices', fn ($q) => $q->overdue())->count())
+                ->description('Con facturas vencidas')
                 ->color('danger')
                 ->icon('heroicon-o-exclamation-triangle'),
         ];

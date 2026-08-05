@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Payment;
+use App\Observers\PaymentObserver;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
@@ -22,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Payment::observe(PaymentObserver::class);
+
         // Crédito del desarrollador en el pie de ambos paneles Filament.
         FilamentView::registerRenderHook(
             PanelsRenderHook::FOOTER,

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Client;
 use App\Models\Domain;
 use App\Models\Invoice;
 use App\Models\Service;
@@ -25,6 +26,7 @@ class ProcessBillingReminders extends Command
         $this->markOverdueInvoices();
         $this->markExpiredServices();
         $this->markDomainStatuses();
+        $this->syncDebtors();
         $this->sendReminders();
 
         $this->info('Recordatorios y vencimientos procesados.');
@@ -56,6 +58,16 @@ class ProcessBillingReminders extends Command
             ->whereDate('expires_at', '>=', today())
             ->whereDate('expires_at', '<=', today()->addDays(30))
             ->update(['status' => 'por_vencer']);
+    }
+
+    /**
+     * Se corre después de marcar las facturas vencidas: un cliente pasa a
+     * deudor el mismo día en que su factura vence, sin tocar nada a mano.
+     */
+    protected function syncDebtors(): void
+    {
+        Client::whereIn('status', ['activo', 'deudor'])
+            ->each(fn (Client $client) => $client->syncDebtorStatus());
     }
 
     protected function sendReminders(): void
