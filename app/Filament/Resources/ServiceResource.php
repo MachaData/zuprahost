@@ -6,6 +6,7 @@ use App\Filament\Resources\ServiceResource\Pages;
 use App\Filament\Resources\ServiceResource\RelationManagers;
 use App\Models\Service;
 use App\Services\ServiceManager;
+use App\Filament\Concerns\AuthorizesWithPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -14,6 +15,13 @@ use Filament\Tables\Table;
 
 class ServiceResource extends Resource
 {
+    use AuthorizesWithPermissions;
+
+    public static function permissionName(): string
+    {
+        return 'service';
+    }
+
     protected static ?string $model = Service::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-server-stack';
@@ -57,6 +65,19 @@ class ServiceResource extends Resource
                 Forms\Components\DatePicker::make('ends_at')->label('Fecha de vencimiento'),
                 Forms\Components\DatePicker::make('next_renewal_at')->label('Próxima renovación'),
                 Forms\Components\Toggle::make('auto_renew')->label('Renovación automática'),
+                Forms\Components\Toggle::make('allows_invoice_request')
+                    ->label('El cliente puede solicitar factura')
+                    ->helperText('Habilita el botón «Solicitar factura» en su portal para los pagos de este servicio.')
+                    ->columnSpanFull(),
+                // El enlace es propio de lo contratado, por eso vive aquí y no
+                // en el catálogo de métodos. Si está vacío, el botón no sale.
+                Forms\Components\TextInput::make('payment_link')
+                    ->label('Enlace de pago del servicio')
+                    ->url()
+                    ->prefixIcon('heroicon-m-link')
+                    ->placeholder('https://pago.izipay.pe/...')
+                    ->helperText('Opcional. Si lo dejas vacío, el cliente no verá el botón de pagar por enlace.')
+                    ->columnSpanFull(),
                 Forms\Components\Textarea::make('notes')->label('Notas internas')->columnSpanFull(),
             ]),
         ]);
@@ -76,12 +97,19 @@ class ServiceResource extends Resource
                     'success' => 'activo', 'gray' => ['pendiente', 'cancelado'],
                     'warning' => 'suspendido', 'danger' => 'vencido',
                 ]),
+                Tables\Columns\IconColumn::make('allows_invoice_request')
+                    ->label('Pide factura')->boolean()->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')->label('Estado')->options([
                     'activo' => 'Activo', 'pendiente' => 'Pendiente', 'suspendido' => 'Suspendido',
                     'cancelado' => 'Cancelado', 'vencido' => 'Vencido',
                 ]),
+                Tables\Filters\TernaryFilter::make('allows_invoice_request')
+                    ->label('Solicitud de factura')
+                    ->placeholder('Todos')
+                    ->trueLabel('Habilitada')
+                    ->falseLabel('Deshabilitada'),
             ])
             ->actions([
                 Tables\Actions\Action::make('renovar')
@@ -120,6 +148,7 @@ class ServiceResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\AccessesRelationManager::class,
             RelationManagers\RenewalsRelationManager::class,
         ];
     }

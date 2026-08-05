@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DomainResource\Pages;
 use App\Models\Domain;
+use App\Filament\Concerns\AuthorizesWithPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,6 +13,13 @@ use Filament\Tables\Table;
 
 class DomainResource extends Resource
 {
+    use AuthorizesWithPermissions;
+
+    public static function permissionName(): string
+    {
+        return 'domain';
+    }
+
     protected static ?string $model = Domain::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
@@ -32,7 +40,6 @@ class DomainResource extends Resource
                     ->relationship('client', 'name')->searchable()->preload()->required(),
                 Forms\Components\TextInput::make('name')->label('Dominio')->required()
                     ->placeholder('ejemplo.com'),
-                Forms\Components\TextInput::make('provider')->label('Proveedor del dominio'),
                 Forms\Components\Select::make('status')->label('Estado')->options([
                     'activo' => 'Activo', 'por_vencer' => 'Por vencer',
                     'vencido' => 'Vencido', 'suspendido' => 'Suspendido',
@@ -46,6 +53,40 @@ class DomainResource extends Resource
                 Forms\Components\Textarea::make('nameservers')->label('Nameservers')->columnSpanFull(),
                 Forms\Components\Textarea::make('notes')->label('Notas internas')->columnSpanFull(),
             ]),
+
+            // Quién registró el dominio y quién lo renueva son dos decisiones
+            // distintas: uno traído de fuera puede pasar a renovarse con
+            // nosotros sin dejar de ser externo.
+            Forms\Components\Section::make('Origen y renovación')
+                ->description('Define si el dominio lo vendimos nosotros y quién se encarga de renovarlo.')
+                ->columns(2)
+                ->schema([
+                    Forms\Components\Radio::make('origin')->label('¿De dónde viene?')
+                        ->options([
+                            'propio' => 'Lo registramos nosotros',
+                            'externo' => 'El cliente lo trajo de otro proveedor',
+                        ])
+                        ->descriptions([
+                            'propio' => 'Está en nuestra cuenta de registrador.',
+                            'externo' => 'Está en GoDaddy, Namecheap, otro… a nombre del cliente.',
+                        ])
+                        ->default('propio')
+                        ->live()
+                        ->required(),
+
+                    Forms\Components\Group::make()->schema([
+                        Forms\Components\Toggle::make('renewal_managed')
+                            ->label('La renovación corre por nuestra cuenta')
+                            ->helperText('Si se apaga, el dominio no se cobra ni entra en el centro de renovaciones del cliente.')
+                            ->default(true)
+                            ->live(),
+
+                        Forms\Components\TextInput::make('provider')
+                            ->label(fn (Forms\Get $get) => $get('origin') === 'externo' ? 'Proveedor actual' : 'Registrador')
+                            ->placeholder(fn (Forms\Get $get) => $get('origin') === 'externo' ? 'GoDaddy, Namecheap…' : config('app.name'))
+                            ->default(fn () => config('app.name')),
+                    ]),
+                ]),
         ]);
     }
 
@@ -55,6 +96,10 @@ class DomainResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Dominio')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('client.name')->label('Cliente')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('origin')->label('Origen')->badge()
+                    ->formatStateUsing(fn (Domain $r) => $r->isExternal() ? 'Externo' : 'Propio')
+                    ->color(fn (Domain $r) => $r->isExternal() ? 'info' : 'success')
+                    ->description(fn (Domain $r) => $r->renewal_managed ? 'Renovamos nosotros' : 'Renueva el cliente'),
                 Tables\Columns\TextColumn::make('provider')->label('Proveedor')->toggleable(),
                 Tables\Columns\TextColumn::make('expires_at')->label('Vence')->date()->sortable()
                     ->color(fn ($state) => $state && $state->isPast() ? 'danger' : ($state && $state->diffInDays(now()) <= 30 ? 'warning' : null)),
@@ -69,6 +114,14 @@ class DomainResource extends Resource
                     'activo' => 'Activo', 'por_vencer' => 'Por vencer',
                     'vencido' => 'Vencido', 'suspendido' => 'Suspendido',
                 ]),
+                Tables\Filters\SelectFilter::make('origin')->label('Origen')->options([
+                    'propio' => 'Registrados con nosotros',
+                    'externo' => 'Traídos por el cliente',
+                ]),
+                Tables\Filters\TernaryFilter::make('renewal_managed')->label('Renovación')
+                    ->placeholder('Todos')
+                    ->trueLabel('La gestionamos nosotros')
+                    ->falseLabel('La gestiona el cliente'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
